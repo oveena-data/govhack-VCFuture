@@ -1,7 +1,6 @@
 streamlit
 pandas
 numpy
-fbprophet
 statsmodels
 scikit-learn
 matplotlib
