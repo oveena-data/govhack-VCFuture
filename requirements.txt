@@ -1,6 +1,6 @@
 streamlit
 pandas
-numpy==1.26.4
+numpy<1.24
 statsmodels
 scikit-learn
 matplotlib
