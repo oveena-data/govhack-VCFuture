@@ -6,7 +6,14 @@ st.set_page_config(page_title="Forecasting and Visualization", layout="wide")
 # Main function
 def main():
     st.sidebar.title("Navigation")
-    options = st.sidebar.radio("Choose a page:", ["Population Forecasting", "Building Permit Analysis", "Population Analysis", "Vehicle Registration Forecasting", "Vicmap Property", "Housing Development"])
+    options = st.sidebar.radio("Choose a page:", [
+        "Population Forecasting", 
+        "Building Permit Analysis", 
+        "Population Analysis", 
+        "Vehicle Registration Forecasting", 
+        "Housing Development",
+        "Traffic Forecasting"  # New Page Option
+    ])
 
     if options == "Population Forecasting":
         import population_forecasting
@@ -23,14 +30,14 @@ def main():
     elif options == "Vehicle Registration Forecasting":
         import vehicle_forecasting
         vehicle_forecasting.run()
-        
-    elif options == "Vicmap Property":
-        import vicmap_property
-        vicmap_property.run()
 
     elif options == "Housing Development":
         import housing_development
         housing_development.run()
+    
+    elif options == "Traffic Forecasting":  
+        import traffic_forecasting
+        traffic_forecasting.run()  # Use the correct function name
 
 if __name__ == "__main__":
     main()
