@@ -58,7 +58,7 @@ def run():
     st.title("Population Analysis")
 
     # Load and preprocess data
-    data = load_data("data/population_data.csv")
+    data = load_data("Data/population_data.csv")
     
     # Create interactive visualizations
     plot_interactive_visuals(data)

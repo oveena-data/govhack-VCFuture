@@ -71,7 +71,7 @@ def run():
     st.header("Building Permit Data Analysis")
 
     # Load data
-    df = load_permit_data("data/building-permits.csv")
+    df = load_permit_data("Data/building-permits.csv")
     st.write("Building Permit Data", df.head())
 
     # Data Preprocessing
