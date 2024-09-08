@@ -125,7 +125,7 @@ def run():
     st.title("Vehicle Registration Forecasting")
 
     # Load and preprocess data
-    data = load_data("data/vehicle_registration_data.csv")
+    data = load_data("Data/vehicle_registration_data.csv")
 
     # Sidebar for filters
     st.sidebar.header("Filters")
