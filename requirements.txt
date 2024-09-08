@@ -1,7 +1,7 @@
 streamlit
 pandas
 numpy
-prophet
+fbprophet
 statsmodels
 scikit-learn
 matplotlib
@@ -15,4 +15,5 @@ pyproj
 pip
 setuptools
 distutils
+prophet
 
