@@ -7,6 +7,7 @@ from branca.colormap import LinearColormap
 from sklearn.linear_model import LinearRegression
 import numpy as np
 from datetime import datetime
+from shapely import wkt 
 
 # Function to load traffic data from GeoJSON
 @st.cache_data
@@ -69,30 +70,41 @@ def create_traffic_map(traffic_data):
     
     return m
 
-# Function to forecast traffic data
+# Function to forecast traffic data for each location
 def forecast_traffic_data(data, forecast_years):
-    # Prepare data for forecasting
-    historical_data = data.groupby('LAST_YEAR')['AADT_ALLVE'].mean().reset_index()
-
-    # Create a linear regression model for forecasting
-    model = LinearRegression()
-    X = historical_data[['LAST_YEAR']]
-    y = historical_data['AADT_ALLVE']
-    model.fit(X, y)
+    # Group data by geometry
+    grouped_data = data.groupby(data.geometry.apply(lambda geom: geom.wkt))
     
-    # Predict future values
-    future_years = pd.DataFrame({'LAST_YEAR': forecast_years})
-    future_data = future_years.copy()
-    future_data['AADT_ALLVE'] = model.predict(future_years[['LAST_YEAR']])
+    forecasted_data = []
     
-    # Use a representative point for all forecasted data
-    representative_point = data.geometry.iloc[0]
-    future_data['geometry'] = [representative_point] * len(future_data)
+    for geom_wkt, group in grouped_data:
+        # Prepare data for forecasting
+        historical_data = group.groupby('LAST_YEAR')['AADT_ALLVE'].mean().reset_index()
+        
+        if len(historical_data) > 1:  # Ensure we have enough data points for regression
+            # Create a linear regression model for forecasting
+            model = LinearRegression()
+            X = historical_data[['LAST_YEAR']]
+            y = historical_data['AADT_ALLVE']
+            model.fit(X, y)
+            
+            # Predict future values
+            future_years = pd.DataFrame({'LAST_YEAR': forecast_years})
+            future_data = future_years.copy()
+            future_data['AADT_ALLVE'] = model.predict(future_years[['LAST_YEAR']])
+            future_data['geometry'] = geom_wkt
+            
+            forecasted_data.append(future_data)
     
-    return gpd.GeoDataFrame(future_data, geometry='geometry', crs=data.crs)
+    if forecasted_data:
+        forecasted_df = pd.concat(forecasted_data, ignore_index=True)
+        forecasted_df['geometry'] = forecasted_df['geometry'].apply(wkt.loads)
+        return gpd.GeoDataFrame(forecasted_df, geometry='geometry', crs=data.crs)
+    else:
+        return None
 
 def run():
-    st.title("Traffic Data Analysis and Visualization")
+    st.title("Traffic Data Analysis and Visualization (1985-2041)")
 
     # Load data
     traffic_data = load_traffic_data("Data/Traffic Count Locations_ GeoJSON.geojson")
@@ -105,15 +117,20 @@ def run():
     max_year = int(max(available_years))
     
     # Extend years to include forecast period
-    extended_years = list(range(min_year, 2041))
-    selected_year = st.sidebar.slider("Select Year", min_value=min_year, max_value=2040, value=max_year, format="%d")
+    extended_years = list(range(min_year, 2042))
+    selected_year = st.sidebar.slider("Select Year", min_value=min_year, max_value=2041, value=min_year, format="%d")
 
     if selected_year > max_year:
         forecast_years = list(range(max_year + 1, selected_year + 1))
         forecasted_data = forecast_traffic_data(traffic_data, forecast_years)
         
-        # Append forecasted data
-        extended_traffic_data = pd.concat([traffic_data, forecasted_data], ignore_index=True)
+        if forecasted_data is not None:
+            # Combine historical and forecasted data
+            extended_traffic_data = pd.concat([traffic_data, forecasted_data], ignore_index=True)
+            extended_traffic_data = gpd.GeoDataFrame(extended_traffic_data, geometry='geometry', crs=traffic_data.crs)
+        else:
+            st.warning("Unable to generate forecast. Using historical data only.")
+            extended_traffic_data = traffic_data
     else:
         extended_traffic_data = traffic_data
 
@@ -133,6 +150,11 @@ def run():
         summary = filtered_traffic_data[['LAST_YEAR', 'AADT_ALLVE']].describe()
         summary['LAST_YEAR'] = summary['LAST_YEAR'].apply(lambda x: f"{x:.1f}")
         st.write(summary)
+        
+        # Display top 10 busiest locations
+        st.subheader(f"Top 10 Busiest Locations in {selected_year}")
+        top_locations = filtered_traffic_data.nlargest(10, 'AADT_ALLVE')
+        st.bar_chart(top_locations['AADT_ALLVE'])
 
 if __name__ == "__main__":
     run()

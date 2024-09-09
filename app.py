@@ -12,7 +12,7 @@ def main():
         "Population Analysis", 
         "Vehicle Registration Forecasting", 
         "Housing Development",
-        "Traffic Forecasting"  # New Page Option
+        "Traffic Forecasting"  
     ])
 
     if options == "Population Forecasting":
