@@ -20,7 +20,7 @@ We developed a **web-based application** powered by **AI and Machine Learning** 
 - Building permits
 - Public service needs
 
-It empowers users to simulate different urban planning scenarios and evaluate their long-term impact—laying the foundation for liveable, inclusive, and sustainable communities.
+It empowers users to simulate different urban planning scenarios and evaluate their long-term impact,laying the foundation for liveable, inclusive, and sustainable communities.
 
 ---
 
@@ -118,5 +118,5 @@ By predicting community dynamics, this AI-powered tool equips Victoria with the 
 
 ---
 
-*Built with ❤️ by a passionate team of data scientists: Amish, Harsh, Tapan, Shefali, Sheikha & Oveena*
+*Built by a passionate team of data scientists: Amish, Harsh, Tapan, Shefali, Sheikha & Oveena*
 
